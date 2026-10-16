@@ -1,0 +1,32 @@
+Aurora X2 Smart Thermostat — Product Specification (Fictional, for evaluation only)
+
+Overview
+The Aurora X2 is a wall-mounted smart thermostat manufactured by Halcyon Home Systems. It supports heating, cooling and heat-pump systems with up to two heating stages and one cooling stage. The X2 replaces the earlier Aurora X1, which was discontinued in 2024.
+
+Physical Specifications
+Dimensions: 96 mm x 96 mm x 24 mm. Weight: 168 grams. Display: 2.8-inch round colour touchscreen with an ambient light sensor. Housing colours: Graphite, Sand and Glacier White.
+
+Power
+The X2 is powered by a C-wire (24 V AC). In homes without a C-wire, the optional Power Bridge PB-3 adapter must be installed. A built-in backup battery keeps the clock and schedule for up to 72 hours during a power outage.
+
+Connectivity
+Wireless: Wi-Fi 802.11 b/g/n at 2.4 GHz only (5 GHz networks are not supported), Bluetooth Low Energy 5.0 for setup, and a Thread radio for Matter compatibility. The thermostat is controlled through the "Halcyon Home" mobile app on Android and iOS.
+
+Sensing and Operating Range
+Temperature setpoint range: 7 °C to 32 °C. Measured temperature accuracy: ±0.3 °C. Humidity sensor accuracy: ±3% relative humidity. The X2 can pair with up to 8 remote room sensors (model RS-20), each with a battery life of approximately 2 years on a single CR2477 coin cell.
+
+Energy Features
+Eco Mode automatically widens the setpoint band by 2 °C when the home is detected as empty. The "Peak Saver" feature pre-cools or pre-heats the home before utility peak-pricing windows. Halcyon estimates average energy savings of 11% on heating and 14% on cooling compared with a fixed schedule.
+
+Error Codes
+E02 — Lost Wi-Fi connection for more than 30 minutes.
+E05 — No power detected on the C-wire.
+E07 — Internal temperature sensor fault; the unit must be replaced under warranty.
+E11 — Remote room sensor battery low.
+E14 — HVAC equipment did not respond to a call for heat within 15 minutes.
+
+Firmware and Warranty
+Firmware updates are delivered over the air, by default between 2:00 AM and 4:00 AM. Users can postpone an update by a maximum of 14 days. The Aurora X2 carries a 3-year limited warranty, extendable to 5 years if installed by a certified Halcyon Pro installer. Warranty claims require the device serial number, which starts with the prefix "HX2-".
+
+Box Contents
+Thermostat display, wall base, trim plate, 4 screws with wall anchors, wire labels, and a quick-start guide. The Power Bridge PB-3 is sold separately.

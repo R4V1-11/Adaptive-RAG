@@ -104,3 +104,21 @@ pytest
 ```
 
 The unit tests cover chunking, the guardrails, the routing decisions, the corrective fallback and concurrent grading. The embedding model, Qdrant, the LLM and Tavily are stubbed, so the tests run offline in under a second.
+
+---
+
+## Evaluation
+
+`backend/eval/` contains a labelled benchmark for the router and retriever:
+
+- **Corpus:** three short *fictional* documents (an employee handbook, a product spec and a lease agreement), so the LLM can't answer them from general knowledge. They're indexed into a separate `eval_documents` Qdrant collection.
+- **Dataset:** 40 queries labelled with their expected route (22 document, 9 live-web, 9 general-knowledge). Each document query records the evidence string that must appear in the retrieved chunk.
+- **Metrics:** routing accuracy, per-route precision/recall and a confusion matrix, plus retrieval hit@1, hit@3 and MRR. With `--full`, it also reports end-to-end route accuracy, the number of corrective fallbacks, whether RAG answers contain the evidence, and latency.
+
+```bash
+cd backend
+python eval/run_eval.py            # routing + retrieval (Qdrant + GROQ_API_KEY)
+python eval/run_eval.py --full     # + end-to-end answers (also TAVILY_API_KEY)
+```
+
+Results are written to `eval/results.json`.

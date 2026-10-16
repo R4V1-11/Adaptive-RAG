@@ -1,12 +1,12 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import Filter, MatchValue, FieldCondition, PointStruct, VectorParams, Distance
 from sentence_transformers import SentenceTransformer
-from config import QDRANT_HOST, QDRANT_PORT
+from config import QDRANT_HOST, QDRANT_PORT, QDRANT_COLLECTION
 import uuid
 
 client = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
 
-COLLECTION_NAME = "documents"
+COLLECTION_NAME = QDRANT_COLLECTION
 
 model = SentenceTransformer('all-MiniLM-L6-v2')
 

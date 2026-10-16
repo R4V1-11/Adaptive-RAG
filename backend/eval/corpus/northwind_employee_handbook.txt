@@ -1,0 +1,25 @@
+Northwind Robotics — Employee Handbook (Fictional, for evaluation only)
+
+1. Working Hours and Remote Work
+Northwind Robotics operates on a core-hours model. All employees must be available between 10:30 AM and 3:30 PM local time. Outside core hours, schedules are flexible. Employees may work remotely up to three days per week; Tuesdays and Thursdays are designated "anchor days" when the whole team is expected in the Pune office. Fully remote arrangements require written approval from the VP of People, Ms. Ilsa Varkonyi.
+
+2. Probation
+Every new hire completes a probation period of 90 days. During probation, the notice period for either party is 7 days. After confirmation, the standard notice period increases to 45 days for individual contributors and 60 days for managers.
+
+3. Paid Time Off
+Full-time employees accrue 24 days of paid time off per calendar year, credited at 2 days per month. Up to 8 unused days may be carried forward into the next year; any balance above 8 days lapses on 31 March. Northwind also observes a company-wide winter shutdown from 24 December to 1 January, which does not count against PTO.
+
+4. Parental Leave
+Primary caregivers receive 26 weeks of fully paid parental leave. Secondary caregivers receive 6 weeks of fully paid leave, which may be taken in up to three separate blocks within the first year after birth or adoption.
+
+5. Travel and Expenses
+Business travel must be booked through the internal portal named "Waypoint". The daily meal allowance during domestic travel is INR 2,500, and INR 4,000 for international travel. Hotel bookings above INR 9,000 per night require pre-approval from a department head. Expense claims must be submitted within 30 days of the trip end date; late claims are reimbursed only with finance director approval.
+
+6. Learning Budget
+Each employee has an annual learning budget of INR 60,000 that can be used for courses, certifications, books and conference tickets. Unused learning budget does not carry over.
+
+7. Equipment and Security
+Employees receive a laptop refresh every 36 months. Laptops must use full-disk encryption and the company VPN client "Nimbus Gate" when connecting from public networks. Lost or stolen devices must be reported to the IT security desk within 4 hours. Access badges are colour coded: blue for employees, orange for contractors and grey for visitors.
+
+8. Performance Reviews
+Formal performance reviews happen twice a year, in April and October. Ratings use a five-level scale named "Trajectory", ranging from T1 (needs significant improvement) to T5 (exceptional). Promotions are only processed in the April cycle.
