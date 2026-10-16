@@ -70,18 +70,37 @@ React SPA (Vite dev proxy /api → :8000)
 
 ## Running Locally
 
+### With Docker (one command)
+
 ```bash
-# 1. Vector DB
-docker run -p 6333:6333 qdrant/qdrant
-
-# 2. Backend  (copy .env.example → .env and add GROQ_API_KEY, TAVILY_API_KEY)
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload          # http://localhost:8000
-
-# 3. Frontend
-cd frontend
-npm install
-npm run dev                        # http://localhost:5173
+cp backend/.env.example backend/.env    # add GROQ_API_KEY and TAVILY_API_KEY
+docker compose up --build               # UI → http://localhost:3000, API → http://localhost:8000
 ```
 
+This starts Qdrant, the FastAPI backend (CPU PyTorch, embedding model baked into the image) and the React build served by nginx, which proxies `/api` to the backend.
+
+### Without Docker
+
+```bash
+docker run -p 6333:6333 qdrant/qdrant   # vector DB
+
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload               # http://localhost:8000
+
+cd frontend
+npm install
+npm run dev                             # http://localhost:5173
+```
+
+---
+
+## Tests
+
+```bash
+cd backend
+pip install -r requirements-dev.txt
+pytest
+```
+
+The unit tests cover chunking, the guardrails, the routing decisions, the corrective fallback and concurrent grading. The embedding model, Qdrant, the LLM and Tavily are stubbed, so the tests run offline in under a second.

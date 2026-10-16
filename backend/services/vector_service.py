@@ -1,9 +1,10 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import Filter, MatchValue, FieldCondition, PointStruct, VectorParams, Distance
 from sentence_transformers import SentenceTransformer
+from config import QDRANT_HOST, QDRANT_PORT
 import uuid
 
-client = QdrantClient(host="localhost", port=6333)
+client = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
 
 COLLECTION_NAME = "documents"
 

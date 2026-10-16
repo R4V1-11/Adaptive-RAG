@@ -1,0 +1,33 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.12.4
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  backend:
+    build: ./backend
+    env_file: ./backend/.env
+    environment:
+      QDRANT_HOST: qdrant
+      UPLOAD_DIR: /data/pdfs
+    volumes:
+      - uploads:/data/pdfs
+    ports:
+      - "8000:8000"
+    depends_on:
+      - qdrant
+    # The backend creates the Qdrant collection on startup; retry until Qdrant accepts connections.
+    restart: on-failure
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  qdrant_data:
+  uploads:
