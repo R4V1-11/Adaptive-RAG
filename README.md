@@ -1,6 +1,6 @@
-# Dynamic RAG — Agentic Document Q&A with Adaptive Query Routing
+# Adaptive RAG — Agentic Document Q&A with Adaptive Query Routing
 
-A full-stack Retrieval-Augmented Generation (RAG) system that answers natural-language questions over uploaded PDFs. A **confidence-based router** sends each query down the best path: **vector retrieval over private documents**, **live web search**, or **direct LLM inference**. Answers are protected by guardrails, LLM-based relevance grading and prompt-injection hardening.
+A full-stack Retrieval-Augmented Generation (RAG) system that answers natural-language questions over uploaded PDFs. A **confidence-based router** sends each query down the best path: **vector retrieval over private documents**, **live web search**, or **direct LLM inference**. Answers are protected by guardrails, LLM-based relevance grading and basic prompt-injection guarding.
 
 ---
 
@@ -37,7 +37,7 @@ React SPA (Vite dev proxy /api → :8000)
                                          │           → LLM relevance grader (CRAG-style) → grounded answer
                                          ├─► WEB:    Tavily top-3 → context-grounded answer + URLs
                                          └─► DIRECT: LLM general-knowledge answer
-                                                     (all contexts wrapped with prompt-injection defense)
+                                                     (retrieved/web context wrapped with an injection-guard prefix)
 ```
 
 ---
@@ -48,7 +48,7 @@ React SPA (Vite dev proxy /api → :8000)
 - **Corrective RAG (CRAG) pattern.** Retrieved chunks pass a **two-stage filter**: a cosine-similarity threshold, then an **LLM-as-judge relevance grader**. Only graded chunks reach the generation prompt and the citation list.
 - **Metadata-filtered semantic search.** Queries can be scoped to a single document through Qdrant payload filters (`FieldCondition` on `source`).
 - **Ingestion pipeline.** It validates the file type and size and sanitizes the filename (blocks path traversal), extracts text, uses **overlapping fixed-size chunking** to keep context across chunk boundaries, then **batch-embeds** and upserts all chunks in a single request.
-- **Security guardrails.** Input validation (length and emptiness), plus **prompt-injection hardening** of the retrieved and web context: a system-level instruction to treat context as data, not instructions.
+- **Guardrails.** Input validation (length and emptiness) and basic prompt-injection guarding: retrieved and web context is prefixed with an instruction to treat it as reference data and ignore any instructions inside it.
 - **Source attribution.** Answers return citations: document chunks with similarity scores and filenames, or web URLs.
 - **Non-blocking API.** Model-bound endpoints run as sync handlers in FastAPI's threadpool, so CPU-heavy embedding and blocking network I/O don't stall the event loop.
 - **Frontend UX.** Chat interface with drag-and-drop PDF upload (client-side validation that mirrors the server limits), per-document query scoping, colour-coded **route badges** (RAG / Web / General / Rejected), collapsible source citations with similarity scores, Markdown/GFM answer rendering, latency display, backend health monitoring, auto-resizing input with a character limit, and a responsive mobile drawer layout.
@@ -83,11 +83,3 @@ npm install
 npm run dev                        # http://localhost:5173
 ```
 
----
-
-## Resume Bullets
-
-- Built a full-stack **agentic RAG system** (FastAPI, React + TypeScript, Qdrant) with **confidence-based query routing** across vector retrieval, live web search (Tavily) and direct LLM inference (Groq), using retrieval scores to cut unnecessary LLM calls.
-- Implemented a **Corrective-RAG pipeline**: PDF ingestion, overlapping chunking, batched **Sentence-Transformer embeddings** (384-d) in Qdrant, cosine-similarity thresholding and **LLM-as-judge chunk grading** to suppress hallucinations, with source-level citation.
-- Hardened the pipeline with **input guardrails, prompt-injection defenses**, upload validation and path-traversal protection. Added metadata-filtered semantic search for per-document querying.
-- Built a responsive **React 18 + TypeScript + Tailwind** chat UI with drag-and-drop ingestion, route visualization, expandable citations with similarity scores and Markdown rendering.

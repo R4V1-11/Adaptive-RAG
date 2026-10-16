@@ -32,7 +32,7 @@ export default function Sidebar({ documents, selected, onSelect, onUploaded, onR
             <Workflow className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-base font-semibold leading-tight text-slate-900">Dynamic RAG</h1>
+            <h1 className="text-base font-semibold leading-tight text-slate-900">Adaptive RAG</h1>
             <p className="text-xs text-slate-500">Agentic document Q&amp;A</p>
           </div>
         </div>

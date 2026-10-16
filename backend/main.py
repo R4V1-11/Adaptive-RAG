@@ -17,7 +17,7 @@ app.include_router(ask_router)
 
 @app.get("/")
 def home():
-    return {"message": "Stock Research Assistant is running"}
+    return {"message": "Adaptive RAG API is running"}
 
 @app.get("/health")
 def health():
