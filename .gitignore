@@ -1,0 +1,19 @@
+# Secrets
+.env
+backend/.env
+
+# Uploaded documents (may contain personal data)
+pdfs/
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Node
+node_modules/
+frontend/dist/
+
+# Local tool settings
+.claude/
