@@ -51,6 +51,14 @@ export default function ChatMessage({ message }: { message: Message }) {
                 {message.route && (
                   <div className="mb-2 flex items-center gap-2">
                     <RouteBadge route={message.route} />
+                    {message.fallback && (
+                      <span
+                        className="text-[11px] text-amber-600"
+                        title="Retrieved document chunks were graded irrelevant, so the answer fell back to web search"
+                      >
+                        fallback from documents
+                      </span>
+                    )}
                     {message.latencyMs !== undefined && (
                       <span className="text-[11px] text-slate-400">
                         {(message.latencyMs / 1000).toFixed(1)}s

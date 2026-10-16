@@ -1,57 +1,68 @@
+from concurrent.futures import ThreadPoolExecutor
 from services.vector_service import search_chunks
 from llm import ask
 from tavily import TavilyClient
 from config import TAVILY_API_KEY
 from services.guardrails import validate_query, harden_context, grade_chunk
+from services.router import CLASSIFIER_PROMPT, route_by_retrieval, parse_classifier_output, filter_by_score
 
 tavily_client = TavilyClient(api_key=TAVILY_API_KEY)
 
-def classify_query(query: str, source: str = None) -> str:
-    # Step 1: check retrieval confidence FIRST, before asking the LLM to guess
-    results = search_chunks(query, top_k=1, source=source)
-    top_score = results[0]["score"] if results else 0
+TOP_K = 3
 
-    if top_score > 0.35:
-        return "rag"   # strong evidence it's answerable from documents
-    
-    if source:
-        return "not_found_in_source"
+
+def classify_query(query: str, top_score: float, source: str = None) -> str:
+    # Step 1: check retrieval confidence FIRST, before asking the LLM to guess
+    route = route_by_retrieval(top_score, source)
+    if route:
+        return route
+
     # Step 2: only ask the LLM to decide between direct vs web
-    decision = ask(
-        system_prompt="""You are a query classifier.
-Reply with ONLY one word: 'direct' or 'web'.
-'direct' = general knowledge, unlikely to have changed recently.
-'web'    = needs current/live/real-time information (prices, news, live status, today's date).""",
+    return parse_classifier_output(ask(system_prompt=CLASSIFIER_PROMPT, user_prompt=query))
+
+
+def grade_chunks(query: str, chunks: list[dict]) -> list[dict]:
+    """Grades all chunks concurrently; LLM calls are I/O-bound so threads overlap them."""
+    if not chunks:
+        return []
+    with ThreadPoolExecutor(max_workers=len(chunks)) as pool:
+        verdicts = list(pool.map(lambda c: grade_chunk(ask, query, c["text"]), chunks))
+    return [c for c, ok in zip(chunks, verdicts) if ok]
+
+
+def answer_from_web(query: str, fallback: bool = False) -> dict:
+    search_results = tavily_client.search(query, max_results=3)
+    context = "\n\n".join([r["content"] for r in search_results["results"]])
+
+    answer = ask(
+        system_prompt="Answer using this current web search context:\n\n" + harden_context(context),
         user_prompt=query
     )
-    return "web" if "web" in decision.strip().lower() else "direct"
+    return {
+        "answer": answer,
+        "sources": [{"text": r["content"], "url": r["url"]} for r in search_results["results"]],
+        "route": "web",
+        "fallback": fallback
+    }
+
 
 def answer_question(query: str, source: str = None) -> dict:
-
-
     error = validate_query(query)
 
     if error:
         return {"answer": error, "sources": [], "route": "rejected"}
 
-    route = classify_query(query, source=source)
+    # One retrieval serves both the routing decision and the RAG context.
+    results = search_chunks(query, top_k=TOP_K, source=source)
+    top_score = results[0]["score"] if results else 0
+
+    route = classify_query(query, top_score, source=source)
 
     if route == "not_found_in_source":
         return {"answer": f"No relevant information found in {source}.", "sources": [], "route": "rag"}
 
     if route == "web":
-        search_results = tavily_client.search(query, max_results=3)
-        context = "\n\n".join([r["content"] for r in search_results["results"]])
-
-        answer = ask(
-            system_prompt="Answer using this current web search context:\n\n" + harden_context(context),
-            user_prompt=query
-        )
-        return {
-            "answer": answer,
-            "sources": [{"text": r["content"], "url": r["url"]} for r in search_results["results"]],
-            "route": "web"
-        }
+        return answer_from_web(query)
 
     if route == "direct":
         answer = ask(
@@ -61,17 +72,14 @@ def answer_question(query: str, source: str = None) -> dict:
         return {"answer": answer, "sources": [], "route": "direct"}
 
     # route == "rag"
-    results = search_chunks(query, top_k=3, source=source)
-    good_results = [r for r in results if r["score"] > 0.25]
-
-    if not good_results:
-        return {"answer": "No relevant information found in the uploaded documents.", "sources": [], "route": "rag"}
-    
-
-    graded_results = [r for r in good_results if grade_chunk(ask, query, r["text"])]
+    graded_results = grade_chunks(query, filter_by_score(results))
 
     if not graded_results:
-        return {"answer": "No relevant information found in the uploaded documents.", "sources": [], "route": "rag"}
+        if source:
+            # The user scoped the question to one document; don't silently leave it.
+            return {"answer": f"No relevant information found in {source}.", "sources": [], "route": "rag"}
+        # Corrective RAG: retrieved chunks were judged irrelevant, so fall back to web search.
+        return answer_from_web(query, fallback=True)
 
     context = "\n\n".join([r["text"] for r in graded_results])
 

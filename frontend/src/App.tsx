@@ -60,6 +60,7 @@ export default function App() {
         role: "assistant",
         content: res.answer,
         route: res.route,
+        fallback: res.fallback,
         sources: res.sources,
         latencyMs: performance.now() - started,
       };

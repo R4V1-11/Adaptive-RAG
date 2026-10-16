@@ -1,6 +1,6 @@
 # Adaptive RAG — Agentic Document Q&A with Adaptive Query Routing
 
-A full-stack Retrieval-Augmented Generation (RAG) system that answers natural-language questions over uploaded PDFs. A **confidence-based router** sends each query down the best path: **vector retrieval over private documents**, **live web search**, or **direct LLM inference**. Answers are protected by guardrails, LLM-based relevance grading and basic prompt-injection guarding.
+A full-stack Retrieval-Augmented Generation (RAG) system that answers natural-language questions over uploaded PDFs. A **confidence-based router** sends each query down the best path: **vector retrieval over private documents**, **live web search**, or **direct LLM inference**. Irrelevant retrievals trigger a corrective web-search fallback. Answers are protected by guardrails, LLM-based relevance grading and basic prompt-injection guarding.
 
 ---
 
@@ -33,8 +33,9 @@ React SPA (Vite dev proxy /api → :8000)
  Qdrant upsert {text, source}            │      ├─ scoped & low score    → "not found in source"
                                          │      └─ else LLM classifier   → WEB | DIRECT
                                          │
-                                         ├─► RAG:    top-k=3 retrieval → score threshold (0.25)
-                                         │           → LLM relevance grader (CRAG-style) → grounded answer
+                                         ├─► RAG:    score threshold (0.25) → parallel LLM relevance grading
+                                         │           ├─ relevant chunks → grounded answer + citations
+                                         │           └─ none relevant   → corrective fallback to WEB
                                          ├─► WEB:    Tavily top-3 → context-grounded answer + URLs
                                          └─► DIRECT: LLM general-knowledge answer
                                                      (retrieved/web context wrapped with an injection-guard prefix)
@@ -45,7 +46,8 @@ React SPA (Vite dev proxy /api → :8000)
 ## Key Technical Features
 
 - **Adaptive / agentic routing.** The router scores retrieval confidence first (vector similarity) and only falls back to an **LLM zero-shot classifier** (`web` vs `direct`) when the documents can't answer. This saves LLM calls and reduces hallucination.
-- **Corrective RAG (CRAG) pattern.** Retrieved chunks pass a **two-stage filter**: a cosine-similarity threshold, then an **LLM-as-judge relevance grader**. Only graded chunks reach the generation prompt and the citation list.
+- **Corrective RAG (CRAG) pattern.** Retrieved chunks pass a **two-stage filter**: a cosine-similarity threshold, then an **LLM-as-judge relevance grader**. Only graded chunks reach the generation prompt and the citation list. If the grader rejects every chunk, the pipeline **falls back to web search** instead of answering from weak context (unless the query is scoped to one document).
+- **Concurrent grading.** Chunk-grading LLM calls run in parallel in a thread pool, so grading latency is about one LLM round-trip instead of k sequential calls. A single vector search is reused for both the routing decision and the RAG context.
 - **Metadata-filtered semantic search.** Queries can be scoped to a single document through Qdrant payload filters (`FieldCondition` on `source`).
 - **Ingestion pipeline.** It validates the file type and size and sanitizes the filename (blocks path traversal), extracts text, uses **overlapping fixed-size chunking** to keep context across chunk boundaries, then **batch-embeds** and upserts all chunks in a single request.
 - **Guardrails.** Input validation (length and emptiness) and basic prompt-injection guarding: retrieved and web context is prefixed with an instruction to treat it as reference data and ignore any instructions inside it.

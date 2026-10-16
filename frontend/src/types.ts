@@ -17,6 +17,7 @@ export interface AskResponse {
   answer: string;
   sources: Source[];
   route: Route;
+  fallback?: boolean;
 }
 
 export interface UploadResponse {
@@ -36,6 +37,7 @@ export interface Message {
   role: "user" | "assistant";
   content: string;
   route?: Route;
+  fallback?: boolean;
   sources?: Source[];
   scope?: string | null;
   latencyMs?: number;
